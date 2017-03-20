@@ -1,0 +1,5 @@
+title = Smart banner
+description = Module detects mobile device and shows popup with link to nativ application.
+core = 7.x
+version = 7.x-0.1
+package = easyOPAC
