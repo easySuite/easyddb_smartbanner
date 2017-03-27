@@ -49,7 +49,7 @@ function easyddb_smartbanner_init() {
   $icon_path = drupal_get_path('module', 'easyddb_smartbanner') . '/icon.png';
 
   $os = array(
-    'apple' => array(
+    'ios' => array(
       'store_id' => 'apple-itunes',
     ),
     'android' => array(
@@ -75,6 +75,12 @@ function easyddb_smartbanner_init() {
     );
 
     drupal_add_html_head($meta_tags, $os_mach_name . '_meta');
+
+    $icon = $configs['base_config']['app_icon']['icon'];
+    if ($icon) {
+      $icon_path = file_create_url($icon->uri);
+    }
+    $configs['base_config']['app_icon']['icon_path'] = $icon_path;
 
     $app_icon = array(
       '#tag' => 'link',
@@ -128,3 +134,4 @@ function easyddb_smartbanner_init() {
 
   drupal_add_js(array('easyddb_smartbanner' => $configs['base_config']), 'setting');
 }
+

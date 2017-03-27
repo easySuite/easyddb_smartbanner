@@ -10,7 +10,7 @@
  * @param $form
  * @param $form_state
  */
-function easyddb_smartbanner_settings_form($form, $form_state) {
+function easyddb_smartbanner_settings_form($form, &$form_state) {
   $configs = variable_get('smartbanner_config', array());
 
   $form['#tree'] = TRUE;
@@ -84,19 +84,45 @@ function easyddb_smartbanner_settings_form($form, $form_state) {
   );
 
   $form['smartbanner']['base_config']['app_icon'] = array(
-    '#title' => t('Application icon'),
-    '#type' => 'managed_file',
-    '#upload_location' => 'public://easyddb_smartbanner/',
-    '#default_value' => EASYDDB_SMARTBANNER_MODULE_PATH . '/icon.png',
-    '#upload_validators' => array(
-      'file_validate_extensions' => array('png'),
-      // Pass the maximum file size in bytes
-      'file_validate_size' => array(1000000),
-    ),
+    '#type' => 'fieldset',
+    '#title' => t('App Icon'),
+    '#weight' => 1,
+  );
+
+  $icon = $configs['base_config']['app_icon']['icon'];
+  $form['smartbanner']['base_config']['app_icon']['icon'] = array(
+    '#type' => 'value',
+    '#value' => $icon,
+  );
+
+  if ($icon) {
+    $image = array(
+      'style_name' => 'thumbnail',
+      'path' => $icon->uri,
+      'width' => '',
+      'height' => '',
+      'alt' => !empty($icon->alt) ? $icon->alt : '',
+      'title' => !empty($icon->title) ? $icon->title : '',
+    );
+    $form['smartbanner']['base_config']['app_icon']['picture_current'] = array(
+      '#markup' => theme('image_style', $image),
+    );
+  }
+  $form['smartbanner']['base_config']['app_icon']['icon_delete'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Delete picture'),
+    '#access' => !empty($icon->fid),
+    '#description' => t('Check this box to delete the current icon.'),
+  );
+  $form['smartbanner']['base_config']['app_icon']['icon_upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Upload picture'),
+    '#size' => 48,
+    '#description' => t('Application icon.'),
   );
 
   $os = array(
-    'apple' => 'Apple',
+    'ios' => 'iOS',
     'android' => 'Android',
   );
 
@@ -214,15 +240,66 @@ function easyddb_smartbanner_settings_form($form, $form_state) {
       ? $configs['app_configs'][$os_config]['app_description']
       : '',
   );
-
+  $form['#validate'][] = 'easyddb_smartbanner_settings_form_validate';
   $form['#submit'] = array('easyddb_smartbanner_settings_form_submit');
 
   return system_settings_form($form);
 }
 
+/**
+ * Fields validation.
+ */
+function easyddb_smartbanner_settings_form_validate($form, &$form_state) {
+  $file = file_save_upload('smartbanner', array(
+    'file_validate_is_image' => array(),
+    'file_validate_extensions' => array('png gif jpg jpeg'),
+  ));
+
+  if ($file === FALSE) {
+    form_set_error('smartbanner', t("Failed to upload the picture image; the %directory directory doesn't exist or is not writable.", array('%directory' => variable_get('user_picture_path', 'pictures'))));
+  }
+  elseif ($file !== NULL) {
+    $form_state['values']['smartbanner']['base_config']['app_icon']['icon_upload'] = $file;
+  }
+}
+
+/**
+ * Custom fields manipulations before save.
+ */
 function easyddb_smartbanner_settings_form_submit($form, &$form_state) {
   $values = $form_state['values']['smartbanner'];
-//dump($values);
-//exit;
+
+  $icon = $values['base_config']['app_icon']['icon'];
+  $icon_upload = $values['base_config']['app_icon']['icon_upload'];
+  if (!empty($icon_upload->fid)) {
+    if (!$icon_upload->status) {
+      $info = image_get_info($icon_upload->uri);
+      $picture_directory =  file_default_scheme() . '://easyddb_smartbanner';
+
+      // Prepare the pictures directory.
+      file_prepare_directory($picture_directory, FILE_CREATE_DIRECTORY);
+      $destination = file_stream_wrapper_uri_normalize($picture_directory . '/icon-' . $icon_upload->uid . '-' . REQUEST_TIME . '.' . $info['extension']);
+
+      // Move the temporary file into the final location.
+      if ($icon_upload = file_move($icon_upload, $destination, FILE_EXISTS_RENAME)) {
+        $icon_upload->status = FILE_STATUS_PERMANENT;
+        $values['base_config']['app_icon']['icon'] = file_save($icon_upload);
+        $values['base_config']['app_icon']['picture_current'] = $values['base_config']['app_icon']['icon'];
+        file_usage_add($icon_upload, 'user', 'user', $icon_upload->uid);
+      }
+    }
+    // Delete the previous picture if it was deleted or replaced.
+    if (!empty($icon->fid)) {
+      file_usage_delete($icon, 'user', 'user', $icon->uid);
+      file_delete($icon);
+      $values['base_config']['app_icon']['icon_upload'] = '';
+    }
+  }
+  elseif (isset($values['base_config']['app_icon']['icon_delete']) && $values['base_config']['app_icon']['icon_delete']) {
+    file_usage_delete($icon, 'user', 'user', $icon->uid);
+    file_delete($icon);
+    $values['base_config']['app_icon']['icon'] = '';
+  }
+
   variable_set('smartbanner_config', $values);
 }
