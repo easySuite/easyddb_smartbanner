@@ -60,7 +60,7 @@ function easyddb_smartbanner_init() {
   // Meta tags for Apple and Android.
   foreach ($os as $os_mach_name => $os_conf) {
     $os_config = $os_mach_name . '_app_config';
-    if (!$configs['app_configs'][$os_config]['app_enabled']) {
+    if (empty($configs['app_configs'][$os_config]['app_enabled'])) {
       continue;
     }
 
@@ -97,7 +97,7 @@ function easyddb_smartbanner_init() {
   }
 
   // Windows meta tags.
-  if ($configs['app_configs']['windows_app_config']['app_enabled']) {
+  if (!empty($configs['app_configs']['windows_app_config']['app_enabled'])) {
     $meta_ms_1 = array(
       '#tag' => 'meta',
       '#attributes' => array(
@@ -132,6 +132,8 @@ function easyddb_smartbanner_init() {
     $configs['base_config']['windows']['description'] = $configs['app_configs']['windows_app_config']['app_description'];
   }
 
-  drupal_add_js(array('easyddb_smartbanner' => $configs['base_config']), 'setting');
+  if (!empty($configs['base_config'])) {
+    drupal_add_js(array('easyddb_smartbanner' => $configs['base_config']), 'setting');
+  }
 }
 

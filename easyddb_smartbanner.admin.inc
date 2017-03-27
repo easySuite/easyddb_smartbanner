@@ -26,7 +26,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Days hidden'),
     '#description' => t('Days to hide banner after close button clicked.'),
-    '#default_value' => ($configs['base_config']['days_hidden']) ? $configs['base_config']['days_hidden'] : 15,
+    '#default_value' => !empty($configs['base_config']['days_hidden']) ? $configs['base_config']['days_hidden'] : 15,
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -36,7 +36,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Days hidden'),
     '#description' => t('Days to hide banner after VIEW button is clicked.'),
-    '#default_value' => ($configs['base_config']['days_reminder']) ? $configs['base_config']['days_reminder'] : 90,
+    '#default_value' => !empty($configs['base_config']['days_reminder']) ? $configs['base_config']['days_reminder'] : 90,
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -50,14 +50,14 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
       'en' => t('En'),
       'dk' => t('Dk'),
     ),
-    '#default_value' => ($configs['base_config']['app_store_language']) ? $configs['base_config']['app_store_language'] : 'en',
+    '#default_value' => !empty($configs['base_config']['app_store_language']) ? $configs['base_config']['app_store_language'] : 'en',
   );
 
   $form['smartbanner']['base_config']['app_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#description' => t('Application title.'),
-    '#default_value' => ($configs['base_config']['app_title']) ? $configs['base_config']['app_title'] : '',
+    '#default_value' => !empty($configs['base_config']['app_title']) ? $configs['base_config']['app_title'] : '',
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -67,7 +67,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Author'),
     '#description' => t('Application author.'),
-    '#default_value' => ($configs['base_config']['app_author']) ? $configs['base_config']['app_author'] : '',
+    '#default_value' => !empty($configs['base_config']['app_author']) ? $configs['base_config']['app_author'] : '',
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -77,7 +77,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Button value'),
     '#description' => t('Value for button.'),
-    '#default_value' => ($configs['base_config']['button_name']) ? $configs['base_config']['button_name'] : '',
+    '#default_value' => !empty($configs['base_config']['button_name']) ? $configs['base_config']['button_name'] : '',
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -89,7 +89,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#weight' => 1,
   );
 
-  $icon = $configs['base_config']['app_icon']['icon'];
+  $icon = !empty($configs['base_config']['app_icon']['icon']) ? $configs['base_config']['app_icon']['icon'] : FALSE;
   $form['smartbanner']['base_config']['app_icon']['icon'] = array(
     '#type' => 'value',
     '#value' => $icon,
@@ -140,7 +140,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     $form['smartbanner']['app_configs'][$os_config]['app_enabled'] = array(
       '#type' => 'checkbox',
       '#title' => t("Enable {$os_name} app banner."),
-      '#default_value' => ($configs['app_configs'][$os_config]['app_enabled'])
+      '#default_value' => !empty($configs['app_configs'][$os_config]['app_enabled'])
         ? $configs['app_configs'][$os_config]['app_enabled']
         : '',
     );
@@ -151,7 +151,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
       '#size' => 30,
       '#maxlength' => 30,
       '#required' => FALSE,
-      '#default_value' => ($configs['app_configs'][$os_config]['app_id'])
+      '#default_value' => !empty($configs['app_configs'][$os_config]['app_id'])
         ? $configs['app_configs'][$os_config]['app_id']
         : '',
     );
@@ -162,7 +162,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
       '#size' => 30,
       '#maxlength' => 30,
       '#required' => FALSE,
-      '#default_value' => ($configs['app_configs'][$os_config]['app_price'])
+      '#default_value' => !empty($configs['app_configs'][$os_config]['app_price'])
         ? $configs['app_configs'][$os_config]['app_price']
         : '',
     );
@@ -173,7 +173,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
       '#size' => 60,
       '#maxlength' => 255,
       '#required' => FALSE,
-      '#default_value' => ($configs['app_configs'][$os_config]['app_description'])
+      '#default_value' => !empty($configs['app_configs'][$os_config]['app_description'])
         ? $configs['app_configs'][$os_config]['app_description']
         : '',
     );
@@ -192,7 +192,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
   $form['smartbanner']['app_configs'][$os_config]['app_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t("Enable Windows app banner."),
-    '#default_value' => ($configs['app_configs'][$os_config]['app_enabled'])
+    '#default_value' => !empty($configs['app_configs'][$os_config]['app_enabled'])
       ? $configs['app_configs'][$os_config]['app_enabled']
       : '',
   );
@@ -203,7 +203,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => FALSE,
-    '#default_value' => ($configs['app_configs'][$os_config]['app_id'])
+    '#default_value' => !empty($configs['app_configs'][$os_config]['app_id'])
       ? $configs['app_configs'][$os_config]['app_id']
       : '',
   );
@@ -214,7 +214,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => FALSE,
-    '#default_value' => ($configs['app_configs'][$os_config]['package'])
+    '#default_value' => !empty($configs['app_configs'][$os_config]['package'])
       ? $configs['app_configs'][$os_config]['package']
       : '',
   );
@@ -225,7 +225,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => FALSE,
-    '#default_value' => ($configs['app_configs'][$os_config]['app_price'])
+    '#default_value' => !empty($configs['app_configs'][$os_config]['app_price'])
       ? $configs['app_configs'][$os_config]['app_price']
       : '',
   );
@@ -236,7 +236,7 @@ function easyddb_smartbanner_settings_form($form, &$form_state) {
     '#size' => 60,
     '#maxlength' => 255,
     '#required' => FALSE,
-    '#default_value' => ($configs['app_configs'][$os_config]['app_description'])
+    '#default_value' => !empty($configs['app_configs'][$os_config]['app_description'])
       ? $configs['app_configs'][$os_config]['app_description']
       : '',
   );
