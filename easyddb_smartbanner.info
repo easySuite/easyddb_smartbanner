@@ -1,6 +1,6 @@
 title = EasyDDB Smartbanner
 description = Module detects mobile device and shows popup with link to native application.
 core = 7.x
-version = 7.x-0.1
+version = 7.x-3.0.2
 package = easyOPAC
 config = admin/config/smartbanner
