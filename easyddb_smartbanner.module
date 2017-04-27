@@ -1,0 +1,139 @@
+<?php
+/**
+ * @file
+ *  Smart banner module file.
+ */
+
+define('EASYDDB_SMARTBANNER_MODULE_PATH', drupal_get_path('module', 'easyddb_smartbanner'));
+
+/**
+ * Implements hook_menu().
+ */
+function easyddb_smartbanner_menu() {
+  $item = array();
+
+  $item['admin/config/smartbanner'] = array(
+    'title' => 'Smart banner',
+    'description' => 'Manage smart banner configuration.',
+    'position' => 'left',
+    'weight' => 20,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $item['admin/config/smartbanner/settings'] = array(
+    'title' => 'Smart banner',
+    'description' => 'Manage smart banner configuration.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('easyddb_smartbanner_settings_form'),
+    'access arguments' => array('access content'),
+    'file' => 'easyddb_smartbanner.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $item;
+}
+
+/**
+ * Implements hook_init().
+ */
+function easyddb_smartbanner_init() {
+  $configs = variable_get('smartbanner_config', array());
+  drupal_add_css(EASYDDB_SMARTBANNER_MODULE_PATH . '/css/smart-app-banner.css', array('type' => 'file', ));
+  drupal_add_js(EASYDDB_SMARTBANNER_MODULE_PATH . '/js/smart-app-banner.js', array('type' => 'file', 'scope' => 'footer'));
+
+  drupal_add_js(EASYDDB_SMARTBANNER_MODULE_PATH . '/js/easyddb_smartbanner.js', array('type' => 'file', 'scope' => 'footer'));
+
+  $icon_path = drupal_get_path('module', 'easyddb_smartbanner') . '/icon.png';
+
+  $os = array(
+    'ios' => array(
+      'store_id' => 'apple-itunes',
+    ),
+    'android' => array(
+      'store_id' => 'google-play'
+    ),
+  );
+
+  // Meta tags for Apple and Android.
+  foreach ($os as $os_mach_name => $os_conf) {
+    $os_config = $os_mach_name . '_app_config';
+    if (empty($configs['app_configs'][$os_config]['app_enabled'])) {
+      continue;
+    }
+
+    $app_conf = $configs['app_configs'][$os_mach_name . '_app_config'];
+
+    $meta_tags = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+        'name' => $os_conf['store_id'] . '-app',
+        'content' => 'app-id=' . $app_conf['app_id'],
+      ),
+    );
+
+    drupal_add_html_head($meta_tags, $os_mach_name . '_meta');
+
+    $icon = $configs['base_config']['app_icon']['icon'];
+    if ($icon) {
+      $icon_path = file_create_url($icon->uri);
+    }
+    $configs['base_config']['app_icon']['icon_path'] = $icon_path;
+
+    $app_icon = array(
+      '#tag' => 'link',
+      '#attribute' => array(
+        'rel' => $os_mach_name . '-touch-icon',
+        'href' => $icon_path,
+      ),
+    );
+
+    drupal_add_html_head($app_icon, 'link_' . $os_mach_name . '_icon');
+
+    $configs['base_config'][$os_mach_name]['price'] = $app_conf['app_price'];
+    $configs['base_config'][$os_mach_name]['description'] = $app_conf['app_description'];
+  }
+
+  // Windows meta tags.
+  if (!empty($configs['app_configs']['windows_app_config']['app_enabled'])) {
+    $meta_ms_1 = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+        'name' => 'msApplication-ID',
+        'content' => $configs['app_configs']['windows_app_config']['app_id'],
+      ),
+    );
+
+    drupal_add_html_head($meta_ms_1, 'ms_meta_1');
+
+    $meta_ms_2 = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+        'name' => 'msApplication-PackageFamilyName',
+        'content' => $configs['app_configs']['windows_app_config']['package'],
+      ),
+    );
+
+    drupal_add_html_head($meta_ms_2, 'ms_meta_2');
+
+    $app_icon = array(
+      '#tag' => 'link',
+      '#attribute' => array(
+        'rel' => 'windows-touch-icon',
+        'href' => $icon_path,
+      ),
+    );
+
+    drupal_add_html_head($app_icon, 'link_windows_icon');
+
+    $configs['base_config']['windows']['price'] = $configs['app_configs']['windows_app_config']['app_price'];
+    $configs['base_config']['windows']['description'] = $configs['app_configs']['windows_app_config']['app_description'];
+  }
+
+  if (!empty($configs['base_config'])) {
+    drupal_add_js(array('easyddb_smartbanner' => $configs['base_config']), 'setting');
+  }
+}
+
